@@ -95,15 +95,23 @@ Valid inputs are the case.input objects in the official sample JSON.
 
 ## Automated tests
 
-python -m pytest -q  (373 passed, 1 skipped, 0 failed; mocked LLM, no keys)
+python -m pytest -q  (377 passed, 1 skipped, 0 failed; mocked LLM, no keys)
 
 ## Docker
 
 docker build -t gridwise-llm:submission .
 docker run --rm -d --name gridwise-test --env-file .env -p 8000:8000 gridwise-llm:submission
 
+Published image (GHCR, public):
+
+docker pull ghcr.io/masumcit44/gridwise-llm-bup-2026:submission-v1
+
+Package: https://github.com/masumcit44/gridwise-llm-bup-2026/pkgs/container/gridwise-llm-bup-2026
+
 Image note: Dockerfile + .dockerignore provided (3.11-slim, $PORT default
-8000, .env/keys excluded). Not executed locally; Docker was unavailable.
+8000, .env/keys excluded). The image was published via the GitHub Actions
+workflow "Publish Container Image"; it was not executed locally because
+Docker was unavailable on the dev machine.
 
 ## Public deployment
 
@@ -125,18 +133,25 @@ responses/logs never include keys, prompts, raw output, or traces.
 
 ## Performance and verification results
 
-Suite: 373 passed, 1 skipped, 0 failed. Deployed SAMPLE-01: PASS — 200;
-2 notes -> solar_reduction [12,13] x0.25 + no_op; 24 entries hours 0-23;
-grid 2692.5, cost 38365.0, peak 187.5 (match plan); neutrality holds.
-Latency: 2.23 s.
+Suite: 377 passed, 1 skipped, 0 failed.
+- Public health endpoint: PASS (200, {"status": "ok"}).
+- GHCR publishing workflow ("Publish Container Image"): PASS; package
+  visibility: Public.
+- Deployed SAMPLE-01: PASS — 200, 2.23 s; solar_reduction [12,13] x0.25 +
+  no_op; 24 entries hours 0-23; grid 2692.5, cost 38365.0, peak 187.5 (match
+  plan); neutrality holds.
+- Deployed SAMPLE-03: PASS — 200, 0.97 s; minimum_battery_reserve
+  [18,19,20] reserve 100.0 kWh; 24 entries.
+- Only SAMPLE-01 and SAMPLE-03 were verified live, by design (free-tier
+  rate limits).
 
 ## Known limitations
 
-Groq free-tier rate limits (429 under back-to-back load; controlled 500 +
-one failover). Render cold starts add latency after idle. Only SAMPLE-01
-verified live, by design.
+Groq free-tier rate limits exist (429 possible under back-to-back load;
+controlled 500 + one failover). Render free-tier cold starts add latency
+after idle. Free hosting is not production-grade uptime.
 
 ## Submission
 
-- Docker image: <registry/repository:tag> (TODO)
+- Docker image: ghcr.io/masumcit44/gridwise-llm-bup-2026:submission-v1 (published, public)
 - Demo video URL: <url> (TODO)
