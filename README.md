@@ -110,8 +110,13 @@ Package: https://github.com/masumcit44/gridwise-llm-bup-2026/pkgs/container/grid
 
 Image note: Dockerfile + .dockerignore provided (3.11-slim, $PORT default
 8000, .env/keys excluded). The image was published via the GitHub Actions
-workflow "Publish Container Image"; it was not executed locally because
-Docker was unavailable on the dev machine.
+workflow "Publish Container Image". Local Docker execution was not performed
+because Docker was unavailable on the development computer; however, the
+published GHCR image was independently pulled, started, and health-verified
+on a clean GitHub Actions Ubuntu runner (workflow "Verify Published Container",
+run #1, success in 51 s): port mapping 8000:8000 worked and
+GET /health returned HTTP 200 with the exact body {"status":"ok"} without any
+Groq or Gemini credentials, followed by successful container cleanup.
 
 ## Public deployment
 
@@ -137,6 +142,10 @@ Suite: 377 passed, 1 skipped, 0 failed.
 - Public health endpoint: PASS (200, {"status": "ok"}).
 - GHCR publishing workflow ("Publish Container Image"): PASS; package
   visibility: Public.
+- Container runtime verification ("Verify Published Container" run #1):
+  PASS — public image pulled and started on a clean GitHub Actions Ubuntu
+  runner, port 8000:8000 mapped, /health returned HTTP 200 with the exact
+  body {"status":"ok"} without LLM credentials, cleanup succeeded (51 s).
 - Full public sample audit: ALL 10 official public cases passed end-to-end
   against the deployed API (SAMPLE-01 through SAMPLE-10).
   - Directive interpretation: 10/10 passed.
@@ -152,8 +161,10 @@ Suite: 377 passed, 1 skipped, 0 failed.
   controlled 500 + one secondary failover on primary infrastructure failure).
 - Render free hosting may have cold starts; free hosting is not
   production-grade uptime.
-- Local Docker execution was not performed; however, the GitHub Actions image
-  build and GHCR publication succeeded.
+- Local Docker execution was not performed because Docker was unavailable on
+  the development computer; however, the published GHCR image was
+  independently pulled, started, and health-verified on a clean GitHub Actions
+  Ubuntu runner (workflow "Verify Published Container" run #1: Success, 51 s).
 
 ## Submission
 
