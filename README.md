@@ -137,19 +137,23 @@ Suite: 377 passed, 1 skipped, 0 failed.
 - Public health endpoint: PASS (200, {"status": "ok"}).
 - GHCR publishing workflow ("Publish Container Image"): PASS; package
   visibility: Public.
-- Deployed SAMPLE-01: PASS — 200, 2.23 s; solar_reduction [12,13] x0.25 +
-  no_op; 24 entries hours 0-23; grid 2692.5, cost 38365.0, peak 187.5 (match
-  plan); neutrality holds.
-- Deployed SAMPLE-03: PASS — 200, 0.97 s; minimum_battery_reserve
-  [18,19,20] reserve 100.0 kWh; 24 entries.
-- Only SAMPLE-01 and SAMPLE-03 were verified live, by design (free-tier
-  rate limits).
+- Full public sample audit: ALL 10 official public cases passed end-to-end
+  against the deployed API (SAMPLE-01 through SAMPLE-10).
+  - Directive interpretation: 10/10 passed.
+  - Plan validity: 10/10 passed.
+  - Optimization cost: 10/10 passed.
+  - Returned cost matched the official reference optimum for every case;
+    cost difference was 0.0 for all 10 cases.
+  - Observed deployed latency: approximately 0.7 to 2.2 seconds per request.
 
 ## Known limitations
 
-Groq free-tier rate limits exist (429 possible under back-to-back load;
-controlled 500 + one failover). Render free-tier cold starts add latency
-after idle. Free hosting is not production-grade uptime.
+- Free-tier LLM rate limits may apply (429 possible under back-to-back load;
+  controlled 500 + one secondary failover on primary infrastructure failure).
+- Render free hosting may have cold starts; free hosting is not
+  production-grade uptime.
+- Local Docker execution was not performed; however, the GitHub Actions image
+  build and GHCR publication succeeded.
 
 ## Submission
 
