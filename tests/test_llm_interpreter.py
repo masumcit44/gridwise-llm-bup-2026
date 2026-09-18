@@ -137,6 +137,52 @@ class TestValidInterpretation:
         assert "minimum_energy_kwh" in system
 
 
+class TestEndExclusiveTimeWindows:
+    @staticmethod
+    def _window_payload(hours: list[int]) -> str:
+        return json.dumps(
+            {
+                "directive_interpretation": [
+                    {
+                        "note_index": 0,
+                        "applies": True,
+                        "directive_type": "no_charge_window",
+                        "structured_adjustment": {"hours": hours},
+                        "explanation": "Mocked window.",
+                    }
+                ]
+            }
+        )
+
+    def test_prompt_states_end_exclusive_rule(self) -> None:
+        system, _ = build_interpret_prompts(NOTES[:1], CAPACITY)
+        assert "start-inclusive and end-exclusive" in system
+        assert "6 PM until 9 PM" in system
+        assert "[18, 19, 20]" in system
+        assert "1 PM to 3 PM" in system
+        assert "[13, 14]" in system
+        assert "11 AM until" in system
+        assert "[11, 12]" in system
+
+    def test_evening_window_excludes_end_hour(self) -> None:
+        interp = make_interpreter()
+        stub(interp, groq=lambda s, u, n: self._window_payload([18, 19, 20]))
+        entries = interp.interpret(["Keep reserve from 6 PM until 9 PM."], CAPACITY)
+        assert entries[0]["structured_adjustment"] == {"hours": [18, 19, 20]}
+
+    def test_afternoon_window_excludes_end_hour(self) -> None:
+        interp = make_interpreter()
+        stub(interp, groq=lambda s, u, n: self._window_payload([13, 14]))
+        entries = interp.interpret(["Reduce solar from 1 PM to 3 PM."], CAPACITY)
+        assert entries[0]["structured_adjustment"] == {"hours": [13, 14]}
+
+    def test_morning_window_excludes_end_hour(self) -> None:
+        interp = make_interpreter()
+        stub(interp, groq=lambda s, u, n: self._window_payload([11, 12]))
+        entries = interp.interpret(["No charging from 11 AM until 1 PM."], CAPACITY)
+        assert entries[0]["structured_adjustment"] == {"hours": [11, 12]}
+
+
 # --------------------------------------------------------------------------- #
 # Repair and failover
 # --------------------------------------------------------------------------- #

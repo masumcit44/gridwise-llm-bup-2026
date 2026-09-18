@@ -102,6 +102,14 @@ Rules:
   it requires "applies": false and "structured_adjustment": null.
 - Every applicable directive requires "applies": true and its full
   structured_adjustment object.
+- Time ranges are start-inclusive and end-exclusive. "from A until B",
+  "from A to B", "between A and B", and equivalent expressions include hour
+  A but exclude hour B. An hour is the interval beginning at that hour
+  (hour 18 is 6:00 PM-6:59 PM, hour 19 is 7:00 PM-7:59 PM, hour 20 is
+  8:00 PM-8:59 PM, hour 21 is 9:00 PM-9:59 PM). Examples: 6 PM until 9 PM
+  gives hours [18, 19, 20]; 1 PM to 3 PM gives hours [13, 14]; 11 AM until
+  1 PM gives hours [11, 12]. Words such as "through" or "inclusive" do not
+  add an extra hour beyond this rule.
 - "explanation" is a short non-empty string."""
 
 
