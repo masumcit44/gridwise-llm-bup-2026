@@ -1,0 +1,14 @@
+# GridWise LLM — BUP CSE Fest 2026 Preliminary
+# Python 3.11+ (runs on 3.14 in dev)
+
+fastapi>=0.110,<1.0
+uvicorn>=0.27,<1.0
+pydantic>=2.7,<3.0
+pydantic-settings>=2.2,<3.0
+
+# Optimization (MILP solver; CBC is bundled with PuLP)
+pulp>=3.0,<4.0
+
+# Testing
+pytest>=8.0,<9.0
+httpx>=0.26,<1.0
