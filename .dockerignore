@@ -1,0 +1,48 @@
+# Secrets — never bake into the image
+.env
+app/.env
+*.env
+
+# Version control
+.git
+.gitignore
+
+# Python bytecode and caches
+__pycache__
+*.pyc
+*.pyo
+*$py.class
+
+# Test caches and artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary diagnostic/debugging scripts
+diag_*.py
+verify_*.py
+fix_*.py
+sample01.json
+
+# Local build artifacts
+dist/
+build/
+*.egg-info/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
