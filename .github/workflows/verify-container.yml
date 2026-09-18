@@ -1,0 +1,61 @@
+name: Verify Published Container
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull published image
+        run: docker pull ghcr.io/masumcit44/gridwise-llm-bup-2026:submission-v1
+
+      - name: Start container and verify health
+        run: |
+          set -euo pipefail
+
+          docker run -d \
+            --name gridwise-verify \
+            -p 8000:8000 \
+            -e PORT=8000 \
+            ghcr.io/masumcit44/gridwise-llm-bup-2026:submission-v1
+
+          cleanup() {
+            docker rm -f gridwise-verify >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          ok=0
+          for i in $(seq 1 30); do
+            sleep 2
+            if ! docker ps --format '{{.Names}}' | grep -qx 'gridwise-verify'; then
+              echo "::error::container is not running"
+              docker ps -a
+              docker logs gridwise-verify || true
+              exit 1
+            fi
+            code="$(curl -s -o /tmp/health_body.txt -w '%{http_code}' http://127.0.0.1:8000/health || true)"
+            if [ "$code" = "200" ] && [ "$(cat /tmp/health_body.txt)" = '{"status":"ok"}' ]; then
+              ok=1
+              break
+            fi
+          done
+
+          if [ "$ok" != "1" ]; then
+            echo "::error::health verification failed after 60s"
+            docker ps -a
+            docker logs gridwise-verify || true
+            exit 1
+          fi
+
+          echo "health check passed: HTTP 200 with exact body {\"status\":\"ok\"}"
+          echo "container running without any Groq/Gemini credentials"
+
+          cleanup
+          trap - EXIT
+
+          echo "container properties verified: running, port mapping 8000:8000, cleanup done"
